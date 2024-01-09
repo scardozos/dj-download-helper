@@ -46,12 +46,13 @@ class MainPage(tk.Frame):
 
         self.filelist = os.listdir(DOWNLOADS_PATH)
         
-        self.current_musiclist = [filename for filename in self.filelist if os.path.splitext(filename)[1] in supported_audio_extensions]
+        self.current_musiclist = [filename for filename in self.filelist 
+                                  if os.path.splitext(filename)[1] in supported_audio_extensions 
+                                    if filename not in existing_musiclist]
         
-        self.musiclist = [filename for filename in self.current_musiclist if filename not in existing_musiclist]
         # print(self.musiclist)
 
-        for name in self.musiclist:
+        for name in self.current_musiclist:
             self.listbox.insert(tk.END, name)
             existing_musiclist.append(name)
 
