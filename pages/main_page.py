@@ -1,13 +1,12 @@
-
-import tkinter as tk
 import os
-from config import enums, constants
+import tkinter as tk
+from config import constants
+from config.enums import ListMode
 
-DOWNLOADS_PATH = 'C:\\Users\\Santi\\Downloads'
 
-filelist = os.listdir(DOWNLOADS_PATH)
+filelist = os.listdir(constants.DOWNLOADS_PATH)
 existing_musiclist = [filename for filename in filelist if os.path.splitext(filename)[1] in constants.SUPPORTED_AUDIO_EXTENSIONS]
-existing_musiclist.sort(key=lambda filename: os.path.getctime(os.path.join(DOWNLOADS_PATH, filename)))
+existing_musiclist.sort(key=lambda filename: os.path.getctime(os.path.join(constants.DOWNLOADS_PATH, filename)))
 
 class MainPage(tk.Frame):
 
@@ -40,7 +39,7 @@ class MainPage(tk.Frame):
         self.listbox.config(yscrollcommand=scrollbar.set)
 
         self.fill_file_list() if (
-            self.CURRENT_LIST_MODE == enums.ListMode.FULL_LIST_MODE
+            self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE
         ) else self.update_file_list()
         
         # --- Start right side ---
@@ -52,7 +51,7 @@ class MainPage(tk.Frame):
 
         self.switch_list_mode_btn_txt = tk.StringVar(
             value=constants.SHOW_NEW_DOWNLOADS_TXT 
-            if self.CURRENT_LIST_MODE == enums.ListMode.FULL_LIST_MODE 
+            if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE 
             else constants.SHOW_ALL_DOWNLOADS_TXT
         )
 
@@ -61,7 +60,7 @@ class MainPage(tk.Frame):
 
         self.switch_refresh_mode_btn_txt = tk.StringVar(
             value=constants.ENABLE_REFRESH_TXT 
-            if self.CURRENT_LIST_MODE == enums.ListMode.FULL_LIST_MODE 
+            if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE 
             else constants.DISABLE_REFRESH_TXT
         )
 
@@ -72,28 +71,28 @@ class MainPage(tk.Frame):
         print("calling change_list_mode")
 
         self.change_automatic_refresh() if (
-            self.CURRENT_LIST_MODE == enums.ListMode.FULL_LIST_MODE 
+            self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE 
             and not self.REFRESH_MUSIC_LIST_ENABLED
         ) else None
 
         self.fill_file_list() if (
-            self.CURRENT_LIST_MODE == enums.ListMode.ONLY_NEW_MUSIC
+            self.CURRENT_LIST_MODE == ListMode.ONLY_NEW_MUSIC
         ) else None
 
         self.CURRENT_LIST_MODE = (
-            enums.ListMode.ONLY_NEW_MUSIC 
-            if self.CURRENT_LIST_MODE == enums.ListMode.FULL_LIST_MODE 
-            else enums.ListMode.FULL_LIST_MODE
+            ListMode.ONLY_NEW_MUSIC 
+            if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE 
+            else ListMode.FULL_LIST_MODE
         )
 
         self.switch_list_mode_btn_txt.set(
             constants.SHOW_NEW_DOWNLOADS_TXT 
-            if self.CURRENT_LIST_MODE == enums.ListMode.FULL_LIST_MODE 
+            if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE 
             else constants.SHOW_ALL_DOWNLOADS_TXT
         )
 
         self.listbox.delete(0, tk.END) if (
-            self.CURRENT_LIST_MODE == enums.ListMode.ONLY_NEW_MUSIC
+            self.CURRENT_LIST_MODE == ListMode.ONLY_NEW_MUSIC
         ) else None
         self.update_file_list()
 
@@ -119,13 +118,13 @@ class MainPage(tk.Frame):
     def update_file_list(self):
         print("calling update_file_list")
     
-        self.filelist = os.listdir(DOWNLOADS_PATH)
+        self.filelist = os.listdir(constants.DOWNLOADS_PATH)
 
         self.current_musiclist = [filename for filename in self.filelist 
                                 if os.path.splitext(filename)[1] in constants.SUPPORTED_AUDIO_EXTENSIONS
                                     if filename not in existing_musiclist]
         # print(self.musiclist)
-        self.current_musiclist.sort(key=lambda filename: os.path.getctime(os.path.join(DOWNLOADS_PATH, filename)))
+        self.current_musiclist.sort(key=lambda filename: os.path.getctime(os.path.join(constants.DOWNLOADS_PATH, filename)))
 
 
         for name in self.current_musiclist:
@@ -133,7 +132,7 @@ class MainPage(tk.Frame):
             existing_musiclist.append(name)
 
         self.listbox.bind("<<ListboxSelect>>", self.handle_get_selection)
-        self.listbox.yview(tk.END) if self.CURRENT_LIST_MODE == enums.ListMode.FULL_LIST_MODE else None
+        self.listbox.yview(tk.END) if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE else None
 
         if self.REFRESH_MUSIC_LIST_ENABLED:
             self.after(1000, self.update_file_list)
@@ -142,7 +141,5 @@ class MainPage(tk.Frame):
     def handle_get_selection(self, event):
         selected_indices = self.listbox.curselection()
         for index in selected_indices:
-            file_path = os.path.join(DOWNLOADS_PATH,self.listbox.get(index)) 
+            file_path = os.path.join(constants.DOWNLOADS_PATH,self.listbox.get(index)) 
             print(f"Selected item at index {index}: {file_path}")
-
-
