@@ -53,7 +53,7 @@ class MainPage(tk.Frame):
 
         for name in self.musiclist:
             self.listbox.insert(tk.END, name)
-            previous_musiclist.append(name)
+            existing_musiclist.append(name)
 
         self.listbox.bind("<<ListboxSelect>>", self.handle_get_selection)
         self.after(1000, self.update_file_list)
