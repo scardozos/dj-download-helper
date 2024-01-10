@@ -46,9 +46,12 @@ class MainPage(tk.Frame):
         self.right_side_frame = tk.Frame(master=self, background="pink")
         self.right_side_frame.grid(row=0, column=1, sticky=(tk.E,tk.N,tk.S,tk.W))
 
+        self.right_side_frame.grid_rowconfigure(0, weight=2)
+        self.right_side_frame.grid_rowconfigure(1, weight=1)
         self.right_side_frame.grid_columnconfigure(0, weight=1)
         self.right_side_frame.grid_columnconfigure(1, weight=1)
 
+        # Switch list mode button
         self.switch_list_mode_btn_txt = tk.StringVar(
             value=constants.SHOW_NEW_DOWNLOADS_TXT 
             if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE 
@@ -58,6 +61,7 @@ class MainPage(tk.Frame):
         self.switch_list_mode_btn = tk.Button(self.right_side_frame, textvariable=self.switch_list_mode_btn_txt, command=self.change_list_mode)
         self.switch_list_mode_btn.grid(column=0,row=0, sticky="nsew")
 
+        # Switch refresh mode button
         self.switch_refresh_mode_btn_txt = tk.StringVar(
             value=constants.ENABLE_REFRESH_TXT 
             if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE 
@@ -66,8 +70,42 @@ class MainPage(tk.Frame):
 
         self.switch_refresh_mode_btn = tk.Button(self.right_side_frame, textvariable=self.switch_refresh_mode_btn_txt, command=self.change_automatic_refresh)
         self.switch_refresh_mode_btn.grid(column=1,row=0, sticky="nsew")
+        
+        # Music genres menubutton
+        self.selected_genre = tk.StringVar()
+        self.selected_genre.trace_add("write", self.genres_menu_item_selected)
+
+        self.genres_menu_btn = tk.Menubutton(self.right_side_frame, text="Select a genre", relief=tk.RAISED)
+        self.genres_menu = tk.Menu(self.genres_menu_btn, tearoff=0)
+
+        for genre in constants.MUSIC_GENRES:
+            self.genres_menu.add_radiobutton(label=genre.value, variable=self.selected_genre)
+
+        self.genres_menu_btn["menu"] = self.genres_menu
+        self.genres_menu_btn.grid(row=1,column=0)
+
+
+        # Music category menubutton
+        self.selected_category = tk.StringVar()
+        self.selected_category.trace_add("write", self.categories_menu_item_selected)
+
+        self.categories_menu_btn = tk.Menubutton(self.right_side_frame, text="Select a category", relief=tk.RAISED)
+        self.categories_menu = tk.Menu(self.categories_menu_btn, tearoff=0)
+
+        for category in constants.MUSIC_CATEGORIES:
+            self.categories_menu.add_radiobutton(label=category.value, variable=self.selected_category)
+
+        self.categories_menu_btn["menu"] = self.categories_menu
+        self.categories_menu_btn.grid(row=1,column=1)
+
+    def genres_menu_item_selected(self, var, index, mode):
+        pass
+
+    def categories_menu_item_selected(self, var, index, mode):
+        pass
 
     def change_list_mode(self):
+
         print("calling change_list_mode")
 
         self.change_automatic_refresh() if (
@@ -94,6 +132,7 @@ class MainPage(tk.Frame):
         self.listbox.delete(0, tk.END) if (
             self.CURRENT_LIST_MODE == ListMode.ONLY_NEW_MUSIC
         ) else None
+
         self.update_file_list()
 
     def change_automatic_refresh(self):
@@ -114,6 +153,8 @@ class MainPage(tk.Frame):
     def fill_file_list(self):
         for name in existing_musiclist:
             self.listbox.insert(tk.END, name)
+
+        self.listbox.yview(tk.END) if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE else None
 
     def update_file_list(self):
         print("calling update_file_list")
