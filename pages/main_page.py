@@ -1,6 +1,7 @@
 import os
 import tkinter as tk
 from config import constants
+from datetime import datetime
 from config.enums import ListMode,MoveMode,MusicGenres, MusicCategory
 
 
@@ -14,11 +15,15 @@ class MainPage(tk.Frame):
         self.parent = parent
         self.controller = controller
 
-        self.DEFAULT_MUSIC_GENRE = MusicGenres.MINIMAL
-        self.DEFAULT_MUSIC_CATEGORY = MusicCategory.UP
-        self.CURRENT_COPY_MOVE_MODE = MoveMode.COPY
+        # Init vars
+        self.SELECTED_GENRE = constants.DEFAULT_MUSIC_GENRE.value
+        self.SELECTED_CATEGORY = constants.DEFAULT_MUSIC_CATEGORY.value
+        self.SELECTED_FILE_PATH = ""
+        self.SELECTED_FILE_NAME = ""
+
+        self.CURRENT_COPY_MOVE_MODE = MoveMode.COPY.value
         self.REFRESH_MUSIC_LIST_ENABLED = False
-        self.CURRENT_LIST_MODE = controller.DEFAULT_LIST_MODE
+        self.CURRENT_LIST_MODE = constants.DEFAULT_LIST_MODE
 
         tk.Frame.__init__(self, parent,width=100, height=40, background="blue")
 
@@ -52,6 +57,7 @@ class MainPage(tk.Frame):
         self.right_side_frame.grid_rowconfigure(0, weight=1)
         self.right_side_frame.grid_rowconfigure(1, weight=1)
         self.right_side_frame.grid_rowconfigure(2, weight=1)
+        self.right_side_frame.grid_rowconfigure(3, weight=1)
         self.right_side_frame.grid_columnconfigure(0, weight=1)
         self.right_side_frame.grid_columnconfigure(1, weight=1)
 
@@ -76,7 +82,7 @@ class MainPage(tk.Frame):
         self.switch_refresh_mode_btn.grid(column=1,row=0, sticky="nsew")
         
         # Music genres menubutton
-        self.selected_genre_var = tk.StringVar(value=self.DEFAULT_MUSIC_GENRE.value)
+        self.selected_genre_var = tk.StringVar(value=self.SELECTED_GENRE)
         self.selected_genre_var.trace_add("write", self.genres_menu_item_selected)
 
         self.genres_menu_btn = tk.Menubutton(self.right_side_frame, textvariable=self.selected_genre_var, relief=tk.RAISED)
@@ -90,21 +96,21 @@ class MainPage(tk.Frame):
 
 
         # Music category menubutton
-        self.selected_category_var = tk.StringVar(value=self.DEFAULT_MUSIC_CATEGORY.value)
+        self.selected_category_var = tk.StringVar(value=self.SELECTED_CATEGORY)
         self.selected_category_var.trace_add("write", self.categories_menu_item_selected)
 
         self.categories_menu_btn = tk.Menubutton(self.right_side_frame, textvariable=self.selected_category_var, relief=tk.RAISED)
         self.categories_menu = tk.Menu(self.categories_menu_btn, tearoff=0)
 
         for category in constants.MUSIC_CATEGORIES:
-            self.categories_menu.add_radiobutton(label=category.value, variable=self.selected_category_var, value=category.value)
+            self.categories_menu.add_radiobutton(label=category.value, variable=self.selected_category_var)
 
         self.categories_menu_btn["menu"] = self.categories_menu
         self.categories_menu_btn.grid(row=1,column=1)
 
         # Copy / MOVE menubutton
 
-        self.selected_copy_move_var = tk.StringVar(value=self.CURRENT_COPY_MOVE_MODE.value)
+        self.selected_copy_move_var = tk.StringVar(value=self.CURRENT_COPY_MOVE_MODE)
         self.selected_copy_move_var.trace_add("write", self.copy_move_item_selected)
 
         self.copy_move_menu_btn = tk.Menubutton(self.right_side_frame, textvariable=self.selected_copy_move_var, relief=tk.SUNKEN)
@@ -116,6 +122,31 @@ class MainPage(tk.Frame):
         self.copy_move_menu_btn["menu"] = self.copy_move_menu
         self.copy_move_menu_btn.grid(row=2, column=0)
 
+        # Result frame
+        self.res_frame = tk.Frame(self.right_side_frame, background="green")
+        self.res_frame.grid(row=3, column=0, sticky="nsew", columnspan=2)
+
+        self.res_label_var = tk.StringVar(value=self.generate_move_path())
+        self.res_label = tk.Label(self.res_frame, textvariable=self.res_label_var)
+        self.move_btn = tk.Button(self.res_frame, text="Move")        
+
+        self.res_label.grid(row=0,column=0, padx=5, pady=5)
+        self.move_btn.grid(row=0, column=1, padx=5, pady=5)
+
+        # TODO: move logic
+
+    def generate_move_path(self) -> str:
+        current_date = datetime.now()
+        year_month_formatted = current_date.strftime("%m-%Y")
+
+        path_list = [constants.MUSIC_PATH,
+                    f"{year_month_formatted} {self.SELECTED_GENRE} {self.SELECTED_CATEGORY}"]
+        return os.path.join(*path_list, self.SELECTED_FILE_NAME)
+
+    def update_res_lbl(self):
+        self.res_label_var.set(
+            value=self.generate_move_path()
+        )
 
     def copy_move_item_selected(self, var, index, mode):
         self.CURRENT_COPY_MOVE_MODE = self.selected_copy_move_var.get()
@@ -123,10 +154,12 @@ class MainPage(tk.Frame):
 
     def genres_menu_item_selected(self, var, index, mode):
         self.SELECTED_GENRE = self.selected_genre_var.get()
+        self.update_res_lbl()
         print(f"Selected genre {self.SELECTED_GENRE}")
 
     def categories_menu_item_selected(self, var, index, mode):
         self.SELECTED_CATEGORY = self.selected_category_var.get()
+        self.update_res_lbl()
         print(f"Selected category {self.SELECTED_CATEGORY}")
 
     def change_list_mode(self):
@@ -180,6 +213,7 @@ class MainPage(tk.Frame):
             self.listbox.insert(tk.END, name)
 
         self.listbox.yview(tk.END) if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE else None
+        self.listbox.bind("<<ListboxSelect>>", self.handle_get_selection)
 
     def update_file_list(self):
         print("calling update_file_list")
@@ -205,7 +239,10 @@ class MainPage(tk.Frame):
 
 
     def handle_get_selection(self, event):
+        print("getting executed")
         selected_indices = self.listbox.curselection()
         for index in selected_indices:
-            file_path = os.path.join(constants.DOWNLOADS_PATH,self.listbox.get(index)) 
-            print(f"Selected item at index {index}: {file_path}")
+            self.SELECTED_FILE_PATH = os.path.join(constants.DOWNLOADS_PATH,self.listbox.get(index)) 
+            self.SELECTED_FILE_NAME = self.listbox.get(index)
+            print(f"Selected item at index {index}: {self.SELECTED_FILE_PATH} - FILENAME: {self.SELECTED_FILE_NAME}")
+        self.update_res_lbl()

@@ -19,7 +19,6 @@ class View:
         self.mainpage(parent=root,controller=controller)
 
 class Controller:
-    DEFAULT_LIST_MODE = enums.ListMode.FULL_LIST_MODE
     def __init__(self,root):
         self.root = root
         self.model = Model()
