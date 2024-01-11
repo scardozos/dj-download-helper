@@ -4,6 +4,10 @@ class ListMode(Enum):
     FULL_LIST_MODE = "full_list_mode"
     ONLY_NEW_MUSIC = "only_new_music"
 
+class MoveMode(Enum):
+    MOVE = "Move"
+    COPY = "Copy"
+
 class MusicGenres(Enum):
     MINIMAL = "Minimal"
     HOUSE = "House"
