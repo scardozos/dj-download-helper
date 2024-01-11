@@ -1,7 +1,7 @@
 import os
 import tkinter as tk
 from config import constants
-from config.enums import ListMode,MoveMode
+from config.enums import ListMode,MoveMode,MusicGenres, MusicCategory
 
 
 filelist = os.listdir(constants.DOWNLOADS_PATH)
@@ -14,6 +14,8 @@ class MainPage(tk.Frame):
         self.parent = parent
         self.controller = controller
 
+        self.DEFAULT_MUSIC_GENRE = MusicGenres.MINIMAL
+        self.DEFAULT_MUSIC_CATEGORY = MusicCategory.UP
         self.CURRENT_COPY_MOVE_MODE = MoveMode.COPY
         self.REFRESH_MUSIC_LIST_ENABLED = False
         self.CURRENT_LIST_MODE = controller.DEFAULT_LIST_MODE
@@ -74,10 +76,10 @@ class MainPage(tk.Frame):
         self.switch_refresh_mode_btn.grid(column=1,row=0, sticky="nsew")
         
         # Music genres menubutton
-        self.selected_genre_var = tk.StringVar()
+        self.selected_genre_var = tk.StringVar(value=self.DEFAULT_MUSIC_GENRE.value)
         self.selected_genre_var.trace_add("write", self.genres_menu_item_selected)
 
-        self.genres_menu_btn = tk.Menubutton(self.right_side_frame, text="Select a genre", relief=tk.RAISED)
+        self.genres_menu_btn = tk.Menubutton(self.right_side_frame, textvariable=self.selected_genre_var, relief=tk.RAISED)
         self.genres_menu = tk.Menu(self.genres_menu_btn, tearoff=0)
 
         for genre in constants.MUSIC_GENRES:
@@ -88,10 +90,10 @@ class MainPage(tk.Frame):
 
 
         # Music category menubutton
-        self.selected_category_var = tk.StringVar()
+        self.selected_category_var = tk.StringVar(value=self.DEFAULT_MUSIC_CATEGORY.value)
         self.selected_category_var.trace_add("write", self.categories_menu_item_selected)
 
-        self.categories_menu_btn = tk.Menubutton(self.right_side_frame, text="Select a category", relief=tk.RAISED)
+        self.categories_menu_btn = tk.Menubutton(self.right_side_frame, textvariable=self.selected_category_var, relief=tk.RAISED)
         self.categories_menu = tk.Menu(self.categories_menu_btn, tearoff=0)
 
         for category in constants.MUSIC_CATEGORIES:
@@ -102,8 +104,7 @@ class MainPage(tk.Frame):
 
         # Copy / MOVE menubutton
 
-        self.selected_copy_move_var = tk.StringVar()
-        self.selected_copy_move_var.set(self.CURRENT_COPY_MOVE_MODE.value)
+        self.selected_copy_move_var = tk.StringVar(value=self.CURRENT_COPY_MOVE_MODE.value)
         self.selected_copy_move_var.trace_add("write", self.copy_move_item_selected)
 
         self.copy_move_menu_btn = tk.Menubutton(self.right_side_frame, textvariable=self.selected_copy_move_var, relief=tk.SUNKEN)
