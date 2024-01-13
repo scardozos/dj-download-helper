@@ -1,9 +1,9 @@
 import os
+import shutil
 import tkinter as tk
 from config import constants
 from datetime import datetime
 from config.enums import ListMode,MoveMode,MusicGenres, MusicCategory
-
 
 filelist = os.listdir(constants.DOWNLOADS_PATH)
 existing_musiclist = [filename for filename in filelist if os.path.splitext(filename)[1] in constants.SUPPORTED_AUDIO_EXTENSIONS]
@@ -126,31 +126,66 @@ class MainPage(tk.Frame):
         self.res_frame = tk.Frame(self.right_side_frame, background="green")
         self.res_frame.grid(row=3, column=0, sticky="nsew", columnspan=2)
 
-        self.res_label_var = tk.StringVar(value=self.generate_move_path())
-        self.res_label = tk.Label(self.res_frame, textvariable=self.res_label_var)
-        self.move_btn = tk.Button(self.res_frame, text="Move")        
+        # Resulting path label
+        self.res_path_label_var = tk.StringVar(value=self.generate_move_path())
+        self.res_path_label = tk.Label(self.res_frame, textvariable=self.res_path_label_var)
+        self.move_btn = tk.Button(self.res_frame, text="Move", command=self.handle_copy_move)        
+        
+        self.move_res_label_var = tk.StringVar(value="")
+        self.move_res_label = tk.Label(self.res_frame, textvariable=self.move_res_label_var)
 
-        self.res_label.grid(row=0,column=0, padx=5, pady=5)
         self.move_btn.grid(row=0, column=1, padx=5, pady=5)
+        self.res_path_label.grid(row=0, column=0, padx=5, pady=5)
+        self.move_res_label.grid(row=1,column=0, padx=5, pady=5)
 
-        # TODO: move logic
+    def handle_copy_move(self):
+        to_directory = self.generate_move_path(dir_only=True)
+        from_and_to_paths = [self.SELECTED_FILE_PATH, self.generate_move_path()]
+        try:
+            if not os.path.exists(to_directory):
+                print(f"Creating directory '{to_directory}' as it doesn't exist yet")
+                os.makedirs(to_directory)
 
-    def generate_move_path(self) -> str:
+            if self.CURRENT_COPY_MOVE_MODE == MoveMode.COPY.value:
+                shutil.copy(*from_and_to_paths)
+                restext = f"File '{self.SELECTED_FILE_NAME}' copied successfully"
+                print(f"File copied successfully from '{from_and_to_paths[0]}' to '{from_and_to_paths[1]}'")
+                self.move_res_label_var.set(restext)
+            
+            if self.CURRENT_COPY_MOVE_MODE == MoveMode.MOVE.value:
+                shutil.move(*from_and_to_paths)
+                restext = f"File '{self.SELECTED_FILE_NAME}' moved successfully"
+                print(f"File moved successfully from '{from_and_to_paths[0]}' to '{from_and_to_paths[1]}'")
+                self.move_res_label_var.set(restext)
+        
+        except FileNotFoundError as e:
+            print(f"Error: {e}. The source file '{from_and_to_paths[0]}' does not exist")
+
+        except Exception as e:
+            print(f"Error moving file: {e}")
+        pass
+
+    def generate_move_path(self, dir_only=False) -> str:
         current_date = datetime.now()
         year_month_formatted = current_date.strftime("%m-%Y")
 
         path_list = [constants.MUSIC_PATH,
                     f"{year_month_formatted} {self.SELECTED_GENRE} {self.SELECTED_CATEGORY}"]
-        return os.path.join(*path_list, self.SELECTED_FILE_NAME)
 
+        return (
+            os.path.join(*path_list, self.SELECTED_FILE_NAME) 
+            if (not dir_only)
+            else os.path.join(*path_list)
+        )
+     
     def update_res_lbl(self):
-        self.res_label_var.set(
+        self.res_path_label_var.set(
             value=self.generate_move_path()
         )
 
     def copy_move_item_selected(self, var, index, mode):
         self.CURRENT_COPY_MOVE_MODE = self.selected_copy_move_var.get()
-        pass
+        print(f"Changed current move mode to {self.CURRENT_COPY_MOVE_MODE}")
 
     def genres_menu_item_selected(self, var, index, mode):
         self.SELECTED_GENRE = self.selected_genre_var.get()
