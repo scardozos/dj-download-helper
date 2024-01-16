@@ -1,6 +1,6 @@
 import tkinter as tk
 from pages import main_page as mp
-from config import enums
+from config import coonfig
 
 class Model:
     def __init__(self):
@@ -22,7 +22,11 @@ class Controller:
     def __init__(self,root):
         self.root = root
         self.model = Model()
+        self.config = coonfig.load_and_gen_if_not_exists()
         self.view = View(root, self, 1200, 600)
+
+
+        print(self.config)
 
 if __name__ == "__main__":
     root = tk.Tk()
