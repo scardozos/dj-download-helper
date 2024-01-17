@@ -1,5 +1,6 @@
 import tkinter as tk
 from pages import main_page as mp
+from pages import error_page as ep
 from config import coonfig
 
 class Model:
@@ -15,6 +16,14 @@ class View:
         self.root.grid_columnconfigure(0, weight=1) 
         self.root.configure(background="dark gray")
         self.root.geometry(f"{window_width}x{window_height}")
+
+        if self.controller.config is None:
+            
+            err_msg = "Configuration file is invalid!"
+
+            self.errorpage = ep.ErrorPage(root, controller, err_msg)
+            return
+
         self.mainpage = mp.MainPage
         self.mainpage(parent=root,controller=controller)
 
@@ -22,7 +31,9 @@ class Controller:
     def __init__(self,root):
         self.root = root
         self.model = Model()
+
         self.config = coonfig.load_and_gen_if_not_exists()
+
         self.view = View(root, self, 1200, 600)
 
 
