@@ -12,9 +12,8 @@ class BaseConfig(BaseModel):
     downloads_path: str
     spek_path: str
     
-    # TODO: change "available" var names to something more accurate
-    available_music_categories: List[MusicCategory]
-    available_music_genres: List[MusicGenres]
+    displayed_music_categories: List[MusicCategory]
+    displayed_music_genres: List[MusicGenres]
 
 class DefaultConfig(BaseModel):
     music_genre: MusicGenres
@@ -41,8 +40,8 @@ def load_and_gen_if_not_exists() -> Config:
             music_path=MUSIC_PATH,
             downloads_path=DOWNLOADS_PATH,
             spek_path=SPEK_PATH,
-            available_music_categories=MUSIC_CATEGORIES,
-            available_music_genres=MUSIC_GENRES,
+            displayed_music_categories=MUSIC_CATEGORIES,
+            displayed_music_genres=MUSIC_GENRES,
             default=DefaultConfig(
                 music_genre=MusicGenres.MINIMAL,
                 music_category=MusicCategory.UP,

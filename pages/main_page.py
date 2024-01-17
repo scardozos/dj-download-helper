@@ -92,7 +92,7 @@ class MainPage(tk.Frame):
         self.genres_menu_btn = tk.Menubutton(self.right_side_frame, textvariable=self.selected_genre_var, relief=tk.RAISED)
         self.genres_menu = tk.Menu(self.genres_menu_btn, tearoff=0)
 
-        for genre in self.config.available_music_genres:
+        for genre in self.config.displayed_music_genres:
             self.genres_menu.add_radiobutton(label=genre.value, variable=self.selected_genre_var)
 
         self.genres_menu_btn["menu"] = self.genres_menu
@@ -106,7 +106,7 @@ class MainPage(tk.Frame):
         self.categories_menu_btn = tk.Menubutton(self.right_side_frame, textvariable=self.selected_category_var, relief=tk.RAISED)
         self.categories_menu = tk.Menu(self.categories_menu_btn, tearoff=0)
 
-        for category in self.config.available_music_categories:
+        for category in self.config.displayed_music_categories:
             self.categories_menu.add_radiobutton(label=category.value, variable=self.selected_category_var)
 
         self.categories_menu_btn["menu"] = self.categories_menu
