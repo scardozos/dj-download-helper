@@ -1,29 +1,32 @@
 import os
 import shutil
 import tkinter as tk
-from config import constants
+from config import constants, coonfig
 from datetime import datetime
-from config.enums import ListMode,MoveMode,MusicGenres, MusicCategory
-
-filelist = os.listdir(constants.DOWNLOADS_PATH)
-existing_musiclist = [filename for filename in filelist if os.path.splitext(filename)[1] in constants.SUPPORTED_AUDIO_EXTENSIONS]
-existing_musiclist.sort(key=lambda filename: os.path.getctime(os.path.join(constants.DOWNLOADS_PATH, filename)))
+from config.enums import ListMode,MoveMode
 
 class MainPage(tk.Frame):
 
     def __init__(self, parent, controller):
         self.parent = parent
         self.controller = controller
+        self.config: coonfig.Config = controller.config
+
+        filelist = os.listdir(self.config.downloads_path)
+        self.existing_musiclist = [filename for filename in filelist if os.path.splitext(filename)[1] in constants.SUPPORTED_AUDIO_EXTENSIONS]
+        self.existing_musiclist.sort(key=lambda filename: os.path.getctime(os.path.join(self.config.downloads_path, filename)))
 
         # Init vars
-        self.SELECTED_GENRE = constants.DEFAULT_MUSIC_GENRE.value
-        self.SELECTED_CATEGORY = constants.DEFAULT_MUSIC_CATEGORY.value
+        self.SELECTED_GENRE = self.config.default.music_genre
+        self.SELECTED_CATEGORY = self.config.default.music_category
         self.SELECTED_FILE_PATH = ""
         self.SELECTED_FILE_NAME = ""
 
-        self.CURRENT_COPY_MOVE_MODE = MoveMode.COPY.value
-        self.REFRESH_MUSIC_LIST_ENABLED = False
-        self.CURRENT_LIST_MODE = constants.DEFAULT_LIST_MODE
+        self.CURRENT_COPY_MOVE_MODE = self.config.default.move_mode.value
+        self.REFRESH_MUSIC_LIST_ENABLED = False if (
+            self.config.default.list_mode == ListMode.FULL_LIST_MODE
+        ) else True
+        self.CURRENT_LIST_MODE = self.config.default.list_mode 
 
         tk.Frame.__init__(self, parent,width=100, height=40, background="blue")
 
@@ -88,8 +91,8 @@ class MainPage(tk.Frame):
         self.genres_menu_btn = tk.Menubutton(self.right_side_frame, textvariable=self.selected_genre_var, relief=tk.RAISED)
         self.genres_menu = tk.Menu(self.genres_menu_btn, tearoff=0)
 
-        for genre in constants.MUSIC_GENRES:
-            self.genres_menu.add_radiobutton(label=genre.value, variable=self.selected_genre_var)
+        for genre in self.config.displayed_music_genres:
+            self.genres_menu.add_radiobutton(label=genre, variable=self.selected_genre_var)
 
         self.genres_menu_btn["menu"] = self.genres_menu
         self.genres_menu_btn.grid(row=1,column=0)
@@ -102,8 +105,8 @@ class MainPage(tk.Frame):
         self.categories_menu_btn = tk.Menubutton(self.right_side_frame, textvariable=self.selected_category_var, relief=tk.RAISED)
         self.categories_menu = tk.Menu(self.categories_menu_btn, tearoff=0)
 
-        for category in constants.MUSIC_CATEGORIES:
-            self.categories_menu.add_radiobutton(label=category.value, variable=self.selected_category_var)
+        for category in self.config.displayed_music_categories:
+            self.categories_menu.add_radiobutton(label=category, variable=self.selected_category_var)
 
         self.categories_menu_btn["menu"] = self.categories_menu
         self.categories_menu_btn.grid(row=1,column=1)
@@ -169,7 +172,7 @@ class MainPage(tk.Frame):
         current_date = datetime.now()
         year_month_formatted = current_date.strftime("%m-%Y")
 
-        path_list = [constants.MUSIC_PATH,
+        path_list = [self.config.music_path,
                     f"{year_month_formatted} {self.SELECTED_GENRE} {self.SELECTED_CATEGORY}"]
 
         return (
@@ -244,7 +247,7 @@ class MainPage(tk.Frame):
         self.update_file_list()
     
     def fill_file_list(self):
-        for name in existing_musiclist:
+        for name in self.existing_musiclist:
             self.listbox.insert(tk.END, name)
 
         self.listbox.yview(tk.END) if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE else None
@@ -253,18 +256,18 @@ class MainPage(tk.Frame):
     def update_file_list(self):
         print("calling update_file_list")
     
-        self.filelist = os.listdir(constants.DOWNLOADS_PATH)
+        self.filelist = os.listdir(self.config.downloads_path)
 
         self.current_musiclist = [filename for filename in self.filelist 
                                 if os.path.splitext(filename)[1] in constants.SUPPORTED_AUDIO_EXTENSIONS
-                                    if filename not in existing_musiclist]
+                                    if filename not in self.existing_musiclist]
         # print(self.musiclist)
-        self.current_musiclist.sort(key=lambda filename: os.path.getctime(os.path.join(constants.DOWNLOADS_PATH, filename)))
+        self.current_musiclist.sort(key=lambda filename: os.path.getctime(os.path.join(self.config.downloads_path, filename)))
 
 
         for name in self.current_musiclist:
             self.listbox.insert(tk.END, name)
-            existing_musiclist.append(name)
+            self.existing_musiclist.append(name)
 
         self.listbox.bind("<<ListboxSelect>>", self.handle_get_selection)
         self.listbox.yview(tk.END) if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE else None
@@ -277,7 +280,7 @@ class MainPage(tk.Frame):
         print("getting executed")
         selected_indices = self.listbox.curselection()
         for index in selected_indices:
-            self.SELECTED_FILE_PATH = os.path.join(constants.DOWNLOADS_PATH,self.listbox.get(index)) 
+            self.SELECTED_FILE_PATH = os.path.join(self.config.downloads_path,self.listbox.get(index)) 
             self.SELECTED_FILE_NAME = self.listbox.get(index)
             print(f"Selected item at index {index}: {self.SELECTED_FILE_PATH} - FILENAME: {self.SELECTED_FILE_NAME}")
         self.update_res_lbl()
