@@ -1,7 +1,27 @@
 {
+    "available_music_categories": [
+        "Chill",
+        "Mid",
+        "Up"
+    ],
+    "available_music_genres": [
+        "Minimal",
+        "House",
+        "Deep House",
+        "Tech House",
+        "Techno",
+        "Hard Techno",
+        "Psytrance"
+    ],
     "music_path": "D:\\Music\\Organized",
     "downloads_path": "C:\\Users\\Santi\\Downloads",
     "spek_path": "C:\\Program Files\\Spek\\spek.exe",
+    "default": {
+        "music_genre": "Minimal",
+        "music_category": "Up",
+        "move_mode": "Copy",
+        "list_mode": "full_list_mode"
+    },
     "displayed_music_categories": [
         "Chill",
         "Mid",
@@ -15,11 +35,5 @@
         "Techno",
         "Hard Techno",
         "Psytrance"
-    ],
-    "default": {
-        "music_genre": "Minimal",
-        "music_category": "Up",
-        "move_mode": "Copy",
-        "list_mode": "full_list_mode"
-    }
+    ]
 }

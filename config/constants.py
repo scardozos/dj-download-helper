@@ -1,5 +1,3 @@
-from .enums import MusicGenres as mg
-from .enums import MusicCategory as mc
 from .enums import MoveMode as mm
 from .enums import ListMode as lm
 
@@ -20,18 +18,18 @@ MUSIC_PATH = 'D:\\Music\\Organized'
 DOWNLOADS_PATH = 'C:\\Users\\Santi\\Downloads'
 SPEK_PATH = "C:\\Program Files\\Spek\\spek.exe"
 
-MUSIC_GENRES = [
-    mg.MINIMAL,
-    mg.HOUSE,
-    mg.DEEP_HOUSE,
-    mg.TECH_HOUSE,
-    mg.TECHNO,
-    mg.HARD_TECHNO,
-    mg.PSYTRANCE,
+DEFAULT_MUSIC_GENRES = [
+    "Minimal",
+    "House",
+    "Deep House",
+    "Tech House",
+    "Techno",
+    "Hard Techno",
+    "Psytrance",
 ]
 
-MUSIC_CATEGORIES = [
-    mc.CHILL,
-    mc.MID,
-    mc.UP
+DEFAULT_MUSIC_CATEGORIES = [
+    "Chill",
+    "Mid",
+    "Up"
 ]
