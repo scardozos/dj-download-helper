@@ -1,17 +1,16 @@
 import os
 import shutil
 import tkinter as tk
-from config import constants
+from config import constants, coonfig
 from datetime import datetime
 from config.enums import ListMode,MoveMode
-
 
 class MainPage(tk.Frame):
 
     def __init__(self, parent, controller):
         self.parent = parent
         self.controller = controller
-        self.config = controller.config
+        self.config: coonfig.Config = controller.config
 
         filelist = os.listdir(self.config.downloads_path)
         self.existing_musiclist = [filename for filename in filelist if os.path.splitext(filename)[1] in constants.SUPPORTED_AUDIO_EXTENSIONS]

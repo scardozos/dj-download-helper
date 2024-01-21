@@ -1,10 +1,9 @@
 import json 
-from typing import List, Any, Union, Dict
+from typing import List
 from pydantic import BaseModel, field_validator, ValidationError, ValidationInfo
 from .enums import MoveMode, ListMode
 from .constants import MUSIC_PATH, DOWNLOADS_PATH
 from .constants import SPEK_PATH, DEFAULT_MUSIC_CATEGORIES, DEFAULT_MUSIC_GENRES
-from enum import Enum
 
 class BaseConfig(BaseModel):
     available_music_categories: List[str]

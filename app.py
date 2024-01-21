@@ -32,7 +32,7 @@ class Controller:
         self.root = root
         self.model = Model()
 
-        self.config = coonfig.load_and_gen_if_not_exists()
+        self.config: coonfig.Config = coonfig.load_and_gen_if_not_exists()
 
         self.view = View(root, self, 1200, 600)
 
