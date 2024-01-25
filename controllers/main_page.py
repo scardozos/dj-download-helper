@@ -11,6 +11,10 @@ class MainPageController():
         self.view = view
         self.frame = self.view.frames["mainpage"]
 
+        if self.model.config.config is None:
+            self.model.error.trigger("config is invalid")
+            return
+
         self.config: config.Config = self.model.config.config
 
         filelist = os.listdir(self.config.downloads_path)

@@ -7,12 +7,16 @@ class Config(ObservableModel):
         super().__init__()
 
         settings, self.cst_config_loaded = config.load_and_gen_if_not_exists()
-        self.config = settings
+        
+        if settings is not None:
+            self.config = settings
+            self.current_move_mode = settings.default.move_mode
+            self.current_list_mode = settings.default.list_mode
+        else:
+            self.config = None
+            
 
-        self.current_move_mode = settings.default.move_mode
-        self.current_list_mode = settings.default.list_mode
 
-    
     def change_current_move_mode_to(self, move_mode: MoveMode):
         self.current_move_mode = move_mode
         self.trigger_event("move_mode_changed")

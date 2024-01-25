@@ -101,4 +101,4 @@ def load_and_gen_if_not_exists() -> (Config, str):
 
     except ValidationError as e:
         print(f"FATAL! CONFIG FILE INVALID:\n{e}")
-        return None
+        return None, False

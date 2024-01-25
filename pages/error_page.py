@@ -1,15 +1,21 @@
 import tkinter as tk
 
-class ErrorPage(tk.Frame):
-    def __init__(self, root, controller, err_msg):
-        self.root = root
-        self.controller = controller
+class ErrorPageView(tk.Frame):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
+        tk.Frame.__init__(self,width=100, height=40)
+        self.grid(row=0,column=0, sticky=tk.NSEW, padx=10, pady=10)
+
+        self.grid_rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+
+        self.err_msg_var = tk.StringVar()
         self.error_label = tk.Label(
-            self.root,
-            text=err_msg,
+            self,
+            textvariable=self.err_msg_var,
             fg="red",
-            font=("Helvetica", 16)
+            font=("Helvetica", 16),
         )
 
         self.error_label.grid(
@@ -17,5 +23,5 @@ class ErrorPage(tk.Frame):
             row=0, 
             sticky="nsew",
             pady=10,
-            padx=10
+            padx=10,
         )
