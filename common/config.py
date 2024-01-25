@@ -61,14 +61,14 @@ class Config(BaseConfig):
         return displayed_categories
 
 
-def load_and_gen_if_not_exists() -> Config:
+def load_and_gen_if_not_exists() -> (Config, str):
     try:
         with open('config.json') as f:
             config_json = json.load(f)
             print("Config file found! Deserializing")
             config = Config(**config_json)
 
-            return config
+            return config, True
 
     except FileNotFoundError as e:
         print("Config file not found! Generating...")
@@ -97,8 +97,8 @@ def load_and_gen_if_not_exists() -> Config:
         with open('config.json', "w") as f:
             f.write(config_json)
 
-        return config
+        return config, False
 
     except ValidationError as e:
         print(f"FATAL! CONFIG FILE INVALID:\n{e}")
-        return None
+        return None, False
