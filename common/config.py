@@ -61,7 +61,7 @@ class Config(BaseConfig):
         return displayed_categories
 
 
-def load_and_gen_if_not_exists() -> (Config, str):
+def load_and_gen_if_not_exists() -> (Config, bool):
     try:
         with open('config.json') as f:
             config_json = json.load(f)
