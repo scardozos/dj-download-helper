@@ -19,7 +19,12 @@ class Controller:
 
     def start(self):
         if self.model.config.cst_config_loaded:
-            self.view.switch("mainpage")
+            
+            self.view.switch("configpage")
+
+            # Disabled while working on configpage, uncomment l8r 
+            # & rm switch to configpage
+            #self.view.switch("mainpage")
 
         if not self.model.config.cst_config_loaded:
             self.view.switch("configpage")
