@@ -10,8 +10,9 @@ class ConfigPageController():
         self.frame = self.view.frames["configpage"]
         self.config: config.Config = self.model.config.config
 
-        if self.config is not None:
+        if self.config is None:
             self.model.error.trigger("config not valid")
+            return
 
         self.available_music_genres = self.config.available_music_genres
         self.displayed_music_genres = self.config.displayed_music_genres
