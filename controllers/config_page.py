@@ -59,7 +59,7 @@ class ConfigPageController():
 
     def fill_listbox_with_config(self, listbox: tk.Listbox, config_list):
         for item in config_list:
-            listbox.insert(tk.END, item)
+            self.add_to_listbox(listbox, item)
         
     
     def handle_add_genres(self):
