@@ -1,6 +1,7 @@
 import tkinter as tk
 from common import config
 from tkinter import ttk
+from typing import List
 
 class ConfigPageController():
     def __init__(self, model, view):
@@ -9,9 +10,129 @@ class ConfigPageController():
         self.frame = self.view.frames["configpage"]
         self.config: config.Config = self.model.config.config
 
-        print(self.view)
+        if self.config is not None:
+            self.model.error.trigger("config not valid")
+
+        self.available_music_genres = self.config.available_music_genres
+        self.displayed_music_genres = self.config.displayed_music_genres
+
+        self.available_music_categories = self.config.available_music_categories
+        self.displayed_music_categories = self.config.displayed_music_categories
 
         self.frame.button_close.config(command=self.go_to_mainpage)
+
+        # -- Music Genres --
+        self.fill_listbox_pair(
+            available_config=self.frame.available_music_genres_listbox,
+            available_values=self.available_music_genres,
+            displayed_config=self.frame.displayed_music_genres_listbox,
+            displayed_values=self.displayed_music_genres
+        )
+
+        # -- Music Categories -- 
+        self.fill_listbox_pair(
+            available_config=self.frame.available_music_categories_listbox,
+            available_values=self.available_music_categories,
+            displayed_config=self.frame.displayed_music_categories_listbox,
+            displayed_values=self.displayed_music_categories
+        )
+
+        self.frame.add_genre_btn.config(command=self.handle_add_genres)
+        self.frame.rm_genre_btn.config(command=self.handle_remove_genres)
+
+    def fill_listbox_pair(
+            self, 
+            available_config: tk.Listbox, 
+            displayed_config: tk.Listbox,
+            available_values: List[str],
+            displayed_values: List[str]
+        ):
+        self.fill_listbox_with_config(
+            listbox=available_config,
+            config_list=available_values
+        )
+        self.fill_listbox_with_config(
+            listbox=displayed_config,
+            config_list=displayed_values
+        )
+
+    def fill_listbox_with_config(self, listbox: tk.Listbox, config_list):
+        for item in config_list:
+            listbox.insert(tk.END, item)
+        
+    
+    def handle_add_genres(self):
+        selected_indices = self.frame.available_music_genres_listbox.curselection()
+        print(selected_indices)
+        for index in selected_indices:
+            self.add_available_to_displayed(
+                        idx=index,
+                        available_listbox=self.frame.available_music_genres_listbox,
+                        displayed_list=self.displayed_music_genres,
+                        displayed_listbox=self.frame.displayed_music_genres_listbox
+            )
+
+    def handle_remove_genres(self):
+        selected_available_genres = self.frame.available_music_genres_listbox.curselection()
+        selected_displayed_genres = self.frame.displayed_music_genres_listbox.curselection()
+
+        selected_idx = -1
+
+        if selected_available_genres:
+            selected_idx = selected_available_genres[0]
+            selected_list = self.available_music_genres
+            selected_listbox = self.frame.available_music_genres_listbox
+
+        if selected_displayed_genres:
+            selected_idx = selected_displayed_genres[0]
+            selected_list = self.displayed_music_genres
+            selected_listbox = self.frame.displayed_music_genres_listbox
+
+        if selected_idx != -1:
+            self.remove_from_displayed_or_available(
+                idx=selected_idx,
+                items_list=selected_list,
+                items_listbox=selected_listbox
+            )            
+
+    def add_available_to_displayed(
+            self, 
+            idx: int,
+            available_listbox: tk.Listbox, 
+            displayed_listbox: tk.Listbox,
+            displayed_list: List[str]
+        ):
+        
+        selected_item = available_listbox.get(idx)
+        print(f"selected item {selected_item}")
+
+        if selected_item not in displayed_list:
+            self.add_to_listbox(displayed_listbox, selected_item)
+            displayed_list.append(selected_item)
+        
+    
+    def remove_from_displayed_or_available(
+            self,
+            idx: int,
+            items_listbox: tk.Listbox,
+            items_list: List[str]):
+        
+        selected_item = items_listbox.get(idx)
+        print(f"selected item {selected_item}")
+
+        if selected_item in items_list:
+            self.rm_from_listbox(items_listbox, selected_item)
+            items_list.remove(selected_item)
+
+
+    def add_to_listbox(self, listbox: tk.Listbox, item: str):
+
+        listbox.insert(tk.END, item)
+
+    def rm_from_listbox(self, listbox: tk.Listbox, item: str):
+        
+        idx = listbox.get(0, tk.END).index(item)
+        listbox.delete(idx)
 
     def go_to_mainpage(self):
         self.view.switch("mainpage")
