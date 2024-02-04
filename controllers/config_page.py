@@ -2,12 +2,13 @@ import tkinter as tk
 from common import config
 from tkinter import ttk
 from typing import List
+from pages.config_page import ConfigPageView 
 
 class ConfigPageController():
     def __init__(self, model, view):
         self.model = model
         self.view = view
-        self.frame = self.view.frames["configpage"]
+        self.frame: ConfigPageView = self.view.frames["configpage"]
         self.config: config.Config = self.model.config.config
 
         if self.config is None:
@@ -40,6 +41,9 @@ class ConfigPageController():
 
         self.frame.add_genre_btn.config(command=self.handle_add_genres)
         self.frame.rm_genre_btn.config(command=self.handle_remove_genres)
+
+        self.frame.add_category_btn.config(command=self.handle_add_categories)
+        self.frame.rm_category_btn.config(command=self.handle_remove_categories)
 
     def fill_listbox_pair(
             self, 
@@ -74,20 +78,53 @@ class ConfigPageController():
             )
 
     def handle_remove_genres(self):
-        selected_available_genres = self.frame.available_music_genres_listbox.curselection()
-        selected_displayed_genres = self.frame.displayed_music_genres_listbox.curselection()
+        self.handle_remove_config(
+            available_config_list=self.available_music_genres,
+            available_config_listbox=self.frame.available_music_genres_listbox,
+            displayed_config_list=self.displayed_music_genres,
+            displayed_config_listbox=self.frame.displayed_music_genres_listbox
+        )
+
+    def handle_remove_categories(self):
+        self.handle_remove_config(
+            available_config_list=self.available_music_categories,
+            available_config_listbox=self.frame.available_music_categories_listbox,
+            displayed_config_list=self.displayed_music_categories,
+            displayed_config_listbox=self.frame.displayed_music_categories_listbox
+        )
+
+    def handle_add_categories(self):
+        selected_indices = self.frame.available_music_categories_listbox.curselection()
+        print(selected_indices)
+        for index in selected_indices:
+            self.add_available_to_displayed(
+                        idx=index,
+                        available_listbox=self.frame.available_music_categories_listbox,
+                        displayed_list=self.displayed_music_categories,
+                        displayed_listbox=self.frame.displayed_music_categories_listbox
+            )
+
+    def handle_remove_config(
+            self,
+            displayed_config_listbox: tk.Listbox,
+            available_config_listbox: tk.Listbox,
+            available_config_list: List[str],
+            displayed_config_list: List[str]
+        ):
+        selected_displayed_config = displayed_config_listbox.curselection()
+        selected_available_config = available_config_listbox.curselection()
 
         selected_idx = -1
 
-        if selected_available_genres:
-            selected_idx = selected_available_genres[0]
-            selected_list = self.available_music_genres
-            selected_listbox = self.frame.available_music_genres_listbox
+        if selected_available_config:
+            selected_idx = selected_available_config[0]
+            selected_list = available_config_list
+            selected_listbox = available_config_listbox
 
-        if selected_displayed_genres:
-            selected_idx = selected_displayed_genres[0]
-            selected_list = self.displayed_music_genres
-            selected_listbox = self.frame.displayed_music_genres_listbox
+        if selected_displayed_config:
+            selected_idx = selected_displayed_config[0]
+            selected_list = displayed_config_list
+            selected_listbox = displayed_config_listbox 
 
         if selected_idx != -1:
             self.remove_from_displayed_or_available(
@@ -127,11 +164,9 @@ class ConfigPageController():
 
 
     def add_to_listbox(self, listbox: tk.Listbox, item: str):
-
         listbox.insert(tk.END, item)
 
     def rm_from_listbox(self, listbox: tk.Listbox, item: str):
-        
         idx = listbox.get(0, tk.END).index(item)
         listbox.delete(idx)
 
