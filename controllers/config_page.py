@@ -153,7 +153,8 @@ class ConfigPageController():
             self,
             idx: int,
             items_listbox: tk.Listbox,
-            items_list: List[str]):
+            items_list: List[str]
+        ):
         
         selected_item = items_listbox.get(idx)
         print(f"selected item {selected_item}")
