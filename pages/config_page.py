@@ -17,12 +17,21 @@ class ConfigPageView(tk.Frame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
+
+
         self.button_close = ttk.Button(
             self,
-            text="Close Config Page",
+            text="Close & Save",
+        )
+        self.button_close.grid(row=0,column=0, sticky="new")
+
+        self.button_close_without_saving = ttk.Button(
+            self,
+            text="Close Without Saving",
         )
 
         self.button_close.grid(row=0,column=0, sticky="new")
+        self.button_close_without_saving.grid(row=0,column=1, sticky="new")
 
         self.lbl_padding = 10
         self.add_rm_btn_width = 10
@@ -47,6 +56,7 @@ class ConfigPageView(tk.Frame):
 
         self.downloads_dir_frame.grid_rowconfigure(0, weight=1)
         self.downloads_dir_frame.grid_rowconfigure(1, weight=1)
+        self.downloads_dir_frame.grid_rowconfigure(2, weight=1)
         self.downloads_dir_frame.grid_columnconfigure(0, weight=0)
         self.downloads_dir_frame.grid_columnconfigure(1, weight=1)
 
@@ -83,6 +93,24 @@ class ConfigPageView(tk.Frame):
         self.music_dir_entry = ttk.Entry(self.music_dir_frame, style="pad.TEntry")
         self.music_dir_entry.grid(column=1, row=1, **self.std_grid_params)
 
+        # -- spek dir frame --
+
+        self.spek_dir_frame = tk.Frame(self)
+        self.spek_dir_frame.grid(column=0, row=3, sticky="news", padx=10, pady=10)
+
+        self.spek_dir_frame.grid_rowconfigure(0, weight=1)
+        self.spek_dir_frame.grid_rowconfigure(1, weight=1)
+        self.spek_dir_frame.grid_columnconfigure(0, weight=0)
+        self.spek_dir_frame.grid_columnconfigure(1, weight=1)
+
+        self.spek_dir_label = tk.Label(self.spek_dir_frame, text="Spek directory")
+        self.spek_dir_label.grid(column=0, row=0, **self.std_grid_params)
+
+        self.spek_dir_btn = tk.Button(self.spek_dir_frame, text="Explore")
+        self.spek_dir_btn.grid(column=0, row=1, sticky="ew")
+
+        self.spek_dir_entry = ttk.Entry(self.spek_dir_frame, style="pad.TEntry")
+        self.spek_dir_entry.grid(column=1, row=1, **self.std_grid_params)
         # --- right column ---
 
         # -- available / displayed music genres config --
