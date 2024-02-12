@@ -3,6 +3,7 @@ from common import config
 from tkinter import ttk
 from typing import List
 from pages.config_page import ConfigPageView 
+from tkinter import filedialog
 
 class ConfigPageController():
     def __init__(self, model, view):
@@ -14,6 +15,18 @@ class ConfigPageController():
         if self.config is None:
             self.model.error.trigger("config not valid")
             return
+
+        # -- Downloads dir --
+
+        self.frame.downloads_dir_btn.config(command=self.explore_downloads)
+
+        # -- Music dir --
+
+        self.frame.music_dir_btn.config(command=self.explore_music)
+
+        # -- Spek dir --
+
+        self.frame.spek_dir_btn.config(command=self.explore_spek)
 
         self.available_music_genres = self.config.available_music_genres
         self.displayed_music_genres = self.config.displayed_music_genres
@@ -44,6 +57,28 @@ class ConfigPageController():
 
         self.frame.add_category_btn.config(command=self.handle_add_categories)
         self.frame.rm_category_btn.config(command=self.handle_remove_categories)
+
+    def explore_downloads(self):
+        self.explore(
+            self.frame.downloads_dir_entry,
+        )
+
+    def explore_music(self):
+        self.explore(
+            self.frame.music_dir_entry,
+        )
+
+    def explore_spek(self):
+        self.explore(
+            self.frame.spek_dir_entry
+        )
+
+    def explore(self, entry: tk.Entry):
+
+        dir = filedialog.askdirectory()
+        if dir:
+            entry.delete(0, tk.END)
+            entry.insert(0, dir)
 
     def fill_listbox_pair(
             self, 
