@@ -17,6 +17,10 @@ class Controller:
             "error_happened", self.error_state_listener
         )
 
+        self.model.config.add_event_listener(
+            "config_saved", self.config_saved_listener
+        )
+
     def start(self):
         if self.model.config.cst_config_loaded:
             
@@ -35,6 +39,11 @@ class Controller:
 
         self.view.start_mainloop()
 
+    def config_saved_listener(self, new_config):
+        config.save_config_to_json_file(new_config.config, "config.json")
+        self.main_page_controller.fill_view(new_config.config)
+
     def error_state_listener(self, data):
         if data.err_happened:
+            self.error_page_controller.update(data)
             self.view.switch("errorpage")
