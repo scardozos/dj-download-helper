@@ -17,58 +17,7 @@ class MainPageController():
 
         self.config: config.Config = self.model.config.config
 
-        filelist = os.listdir(self.config.downloads_path)
-        self.existing_musiclist = [filename for filename in filelist if os.path.splitext(filename)[1] in constants.SUPPORTED_AUDIO_EXTENSIONS]
-        self.existing_musiclist.sort(key=lambda filename: os.path.getctime(os.path.join(self.config.downloads_path, filename)))
-
-        # Init vars
-        self.SELECTED_GENRE = self.config.default.music_genre
-        self.SELECTED_CATEGORY = self.config.default.music_category
-        self.SELECTED_FILE_PATH = ""
-        self.SELECTED_FILE_NAME = ""
-
-        self.CURRENT_LIST_MODE = self.config.default.list_mode 
-        self.CURRENT_COPY_MOVE_MODE = self.config.default.move_mode.value
-        self.REFRESH_MUSIC_LIST_ENABLED = False if (
-            self.config.default.list_mode == ListMode.FULL_LIST_MODE
-        ) else True
-
-
-        self.frame.switch_list_mode_btn_txt.set(
-            constants.SHOW_NEW_DOWNLOADS_TXT 
-            if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE 
-            else constants.SHOW_ALL_DOWNLOADS_TXT
-        )
-
-        self.frame.switch_list_mode_btn.config(command=self.change_list_mode)
-
-        self.frame.switch_refresh_mode_btn_txt.set(
-            constants.ENABLE_REFRESH_TXT 
-            if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE 
-            else constants.DISABLE_REFRESH_TXT
-        )
-
-        self.frame.switch_refresh_mode_btn.config(command=self.change_automatic_refresh)
-
-        self.frame.selected_genre_var.set(self.SELECTED_GENRE)
-        self.frame.selected_genre_var.trace_add("write", self.genres_menu_item_selected)
-
-        for genre in self.config.displayed_music_genres:
-            self.frame.genres_menu.add_radiobutton(label=genre, variable=self.frame.selected_genre_var)
-
-        self.frame.selected_category_var.set(self.SELECTED_CATEGORY)
-        self.frame.selected_category_var.trace_add("write", self.categories_menu_item_selected)
-
-        for category in self.config.displayed_music_categories:
-            self.frame.categories_menu.add_radiobutton(label=category, variable=self.frame.selected_category_var)
-
-        self.frame.selected_copy_move_var.set(self.CURRENT_COPY_MOVE_MODE)
-        self.frame.selected_copy_move_var.trace_add("write", self.copy_move_item_selected)
-
-        self.frame.res_path_label_var.set(self.generate_move_path())
-        self.frame.move_btn.config(command=self.handle_copy_move)
-
-        self._bind()
+        self.fill_view(self.config)
 
     def _bind(self):
         if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE:
@@ -77,6 +26,7 @@ class MainPageController():
             self.update_file_list()
 
         pass
+
 
     def move_mode_state_listener(self, data):
         if data.current_move_mode == MoveMode.COPY:
@@ -225,4 +175,75 @@ class MainPageController():
             print(f"Error moving file: {e}")
         pass
 
-     
+    def fill_view(self, config):
+
+        self.config = config 
+        self.frame.genres_menu.delete(0, tk.END)
+        self.frame.categories_menu.delete(0, tk.END)
+        self.frame.listbox.delete(0, tk.END)
+
+        print(f"CURRENT CONFIG IS:\n{self.config}")
+        downloads_path = self.config.downloads_path
+        filelist = os.listdir(downloads_path)
+        self.existing_musiclist = [
+            filename for 
+            filename in filelist 
+            if os.path.splitext(filename)[1] 
+            in constants.SUPPORTED_AUDIO_EXTENSIONS
+        ]
+
+        self.existing_musiclist.sort(
+            key=lambda filename: os.path.getctime(
+                os.path.join(
+                    downloads_path, filename
+            ))
+        )
+
+        # Init vars
+        self.SELECTED_GENRE = self.config.default.music_genre
+        self.SELECTED_CATEGORY = self.config.default.music_category
+        self.SELECTED_FILE_PATH = ""
+        self.SELECTED_FILE_NAME = ""
+
+        self.CURRENT_LIST_MODE = self.config.default.list_mode 
+        self.CURRENT_COPY_MOVE_MODE = self.config.default.move_mode.value
+        self.REFRESH_MUSIC_LIST_ENABLED = False if (
+            self.config.default.list_mode == ListMode.FULL_LIST_MODE
+        ) else True
+
+
+        self.frame.switch_list_mode_btn_txt.set(
+            constants.SHOW_NEW_DOWNLOADS_TXT 
+            if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE 
+            else constants.SHOW_ALL_DOWNLOADS_TXT
+        )
+
+        self.frame.switch_list_mode_btn.config(command=self.change_list_mode)
+
+        self.frame.switch_refresh_mode_btn_txt.set(
+            constants.ENABLE_REFRESH_TXT 
+            if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE 
+            else constants.DISABLE_REFRESH_TXT
+        )
+
+        self.frame.switch_refresh_mode_btn.config(command=self.change_automatic_refresh)
+
+        self.frame.selected_genre_var.set(self.SELECTED_GENRE)
+        self.frame.selected_genre_var.trace_add("write", self.genres_menu_item_selected)
+
+        for genre in self.config.displayed_music_genres:
+            self.frame.genres_menu.add_radiobutton(label=genre, variable=self.frame.selected_genre_var)
+
+        self.frame.selected_category_var.set(self.SELECTED_CATEGORY)
+        self.frame.selected_category_var.trace_add("write", self.categories_menu_item_selected)
+
+        for category in self.config.displayed_music_categories:
+            self.frame.categories_menu.add_radiobutton(label=category, variable=self.frame.selected_category_var)
+
+        self.frame.selected_copy_move_var.set(self.CURRENT_COPY_MOVE_MODE)
+        self.frame.selected_copy_move_var.trace_add("write", self.copy_move_item_selected)
+
+        self.frame.res_path_label_var.set(self.generate_move_path())
+        self.frame.move_btn.config(command=self.handle_copy_move)
+
+        self._bind()

@@ -60,8 +60,16 @@ class Config(BaseConfig):
             raise ValueError("displayed_music_categories must only contain categories set in available_music_categories")
         return displayed_categories
 
+def save_new_config(new_config) -> Config:
 
-def load_and_gen_if_not_exists() -> (Config, str):
+    try:
+       save_config_to_json_file(new_config, "config.json") 
+       return new_config
+    except ValidationError as e:
+        print(f"FATAL! CONFIG FILE INVALID:\n{e}")
+        return None        
+
+def load_and_gen_if_not_exists() -> (Config, bool):
     try:
         with open('config.json') as f:
             config_json = json.load(f)
@@ -92,13 +100,17 @@ def load_and_gen_if_not_exists() -> (Config, str):
             )
         )
         
-        config_json = config.model_dump_json(indent=4)
-
-        with open('config.json', "w") as f:
-            f.write(config_json)
+        save_config_to_json_file(config, "config.json")
 
         return config, False
 
     except ValidationError as e:
         print(f"FATAL! CONFIG FILE INVALID:\n{e}")
         return None, False
+
+def save_config_to_json_file(config, config_file):
+
+        config_json = config.model_dump_json(indent=4)
+
+        with open(config_file, "w") as f:
+            f.write(config_json)

@@ -16,6 +16,10 @@ class Config(ObservableModel):
             self.config = None
             
 
+    def save_new(self, new_config: config.Config):
+        self.config = new_config
+        self.cst_config_loaded = True
+        self.trigger_event("config_saved")
 
     def change_current_move_mode_to(self, move_mode: MoveMode):
         self.current_move_mode = move_mode
