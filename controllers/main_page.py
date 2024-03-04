@@ -17,6 +17,7 @@ class MainPageController():
 
         self.config: config.Config = self.model.config.config
 
+        self.set_trace_listeners()
         self.fill_view(self.config)
 
     def _bind(self):
@@ -229,21 +230,23 @@ class MainPageController():
         self.frame.switch_refresh_mode_btn.config(command=self.change_automatic_refresh)
 
         self.frame.selected_genre_var.set(self.SELECTED_GENRE)
-        self.frame.selected_genre_var.trace_add("write", self.genres_menu_item_selected)
 
         for genre in self.config.displayed_music_genres:
             self.frame.genres_menu.add_radiobutton(label=genre, variable=self.frame.selected_genre_var)
 
         self.frame.selected_category_var.set(self.SELECTED_CATEGORY)
-        self.frame.selected_category_var.trace_add("write", self.categories_menu_item_selected)
 
         for category in self.config.displayed_music_categories:
             self.frame.categories_menu.add_radiobutton(label=category, variable=self.frame.selected_category_var)
 
         self.frame.selected_copy_move_var.set(self.CURRENT_COPY_MOVE_MODE)
-        self.frame.selected_copy_move_var.trace_add("write", self.copy_move_item_selected)
 
         self.frame.res_path_label_var.set(self.generate_move_path())
         self.frame.move_btn.config(command=self.handle_copy_move)
 
         self._bind()
+
+    def set_trace_listeners(self):
+        self.frame.selected_genre_var.trace_add("write", self.genres_menu_item_selected)
+        self.frame.selected_category_var.trace_add("write", self.categories_menu_item_selected)
+        self.frame.selected_copy_move_var.trace_add("write", self.copy_move_item_selected)
