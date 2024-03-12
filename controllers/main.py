@@ -21,6 +21,7 @@ class Controller:
             "config_saved", self.config_saved_listener
         )
 
+
     def start(self):
         if self.model.config.cst_config_loaded:
             
