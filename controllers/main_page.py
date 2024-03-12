@@ -1,7 +1,12 @@
 import os
+import re
 import shutil
 import tkinter as tk
+import time
+import queue
 from datetime import datetime
+from watchdog.observers import Observer
+from common import path_observer
 from common.enums import MoveMode, ListMode
 from common import config, constants
 
@@ -10,6 +15,13 @@ class MainPageController():
         self.model = model
         self.view = view
         self.frame = self.view.frames["mainpage"]
+        self.observer = None
+        self.current_musiclist = []
+        self.queue = queue.Queue()
+
+        self.frame.bind("<Destroy>", self.shutdown)
+
+        self.frame.bind("<<WatchdogEvent>>", self.handle_watchdog_event)
 
         if self.model.config.config is None:
             self.model.error.trigger("config is invalid")
@@ -39,14 +51,68 @@ class MainPageController():
         self.frame.listbox.yview(tk.END) if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE else None
         self.frame.listbox.bind("<<ListboxSelect>>", self.handle_get_selection)
 
+    def shutdown(self, event):
+        """Perform safe shutdown when GUI has been destroyed"""
+        if self.observer:
+            self.observer.stop()
+            self.observer.join()
+            print("terminating observer")
+
+    
+    def handle_watchdog_event(self, event):
+        """Called when watchdog posts an event"""
+        try:
+            watchdog_event = self.queue.get()
+            
+            path_name = watchdog_event.src_path
+            song_name = os.path.basename(path_name)
+
+            encoded_song_name = song_name.encode("unicode_escape").decode("utf-8")
+
+            print("event type:", type(watchdog_event))
+            print(f"song name: {encoded_song_name}")
+            print(f"full event: {vars(watchdog_event)}")
+            
+            self.insert_item_in_musiclist(song_name)
+
+            if len(self.current_musiclist) == 0:
+                self.current_musiclist = [filename for filename in self.filelist 
+                                if os.path.splitext(filename)[1] in constants.SUPPORTED_AUDIO_EXTENSIONS
+                                    if filename not in self.existing_musiclist]
+
+            if len(self.current_musiclist) > 0:
+                self.current_musiclist.append(song_name)
+                return
+            
+
+        except queue.Empty:
+            pass
+
+    def notify(self, event):
+        if event:
+            self.queue.put(event)
+            self.frame.event_generate("<<WatchdogEvent>>", when="tail")
+
     def update_file_list(self):
         print("calling update_file_list")
     
+        
         self.filelist = os.listdir(self.config.downloads_path)
 
-        self.current_musiclist = [filename for filename in self.filelist 
-                                if os.path.splitext(filename)[1] in constants.SUPPORTED_AUDIO_EXTENSIONS
-                                    if filename not in self.existing_musiclist]
+        try:
+
+            if not self.observer:
+                self.observer = Observer()
+                event_handler = path_observer.Handler(self)
+                self.observer.schedule(event_handler, self.config.downloads_path, recursive=False)
+                self.observer.start()
+        except Exception as e:
+            print(e)
+
+
+        # self.current_musiclist = [filename for filename in self.filelist 
+        #                        if os.path.splitext(filename)[1] in constants.SUPPORTED_AUDIO_EXTENSIONS
+        #                            if filename not in self.existing_musiclist]
         # print(self.musiclist)
         self.current_musiclist.sort(key=lambda filename: os.path.getctime(os.path.join(self.config.downloads_path, filename)))
 
@@ -58,8 +124,11 @@ class MainPageController():
         self.frame.listbox.bind("<<ListboxSelect>>", self.handle_get_selection)
         self.frame.listbox.yview(tk.END) if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE else None
 
-        if self.REFRESH_MUSIC_LIST_ENABLED:
-            self.frame.after(1000, self.update_file_list)
+    def insert_item_in_musiclist(self, song_name):
+        if song_name not in self.existing_musiclist:
+            self.frame.listbox.insert(tk.END, song_name)
+            self.existing_musiclist.append(song_name)
+
 
     def handle_get_selection(self, event):
         print("getting executed")
@@ -174,7 +243,15 @@ class MainPageController():
         except Exception as e:
             print(f"Error moving file: {e}")
         pass
-
+    
+    def get_musiclist_from_path(self, path):
+        filelist = os.listdir(path)
+        return [
+            filename for 
+            filename in filelist 
+            if os.path.splitext(filename)[1] 
+            in constants.SUPPORTED_AUDIO_EXTENSIONS
+        ]
     def fill_view(self, config):
 
         self.config = config 
@@ -183,15 +260,10 @@ class MainPageController():
         self.frame.listbox.delete(0, tk.END)
 
         print(f"CURRENT CONFIG IS:\n{self.config}")
-        downloads_path = self.config.downloads_path
-        filelist = os.listdir(downloads_path)
-        self.existing_musiclist = [
-            filename for 
-            filename in filelist 
-            if os.path.splitext(filename)[1] 
-            in constants.SUPPORTED_AUDIO_EXTENSIONS
-        ]
 
+        downloads_path = self.config.downloads_path
+
+        self.existing_musiclist = self.get_musiclist_from_path(downloads_path)
         self.existing_musiclist.sort(
             key=lambda filename: os.path.getctime(
                 os.path.join(
