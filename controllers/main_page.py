@@ -74,6 +74,7 @@ class MainPageController():
             print(f"full event: {vars(watchdog_event)}")
             
             self.insert_item_in_musiclist(song_name)
+            self.frame.listbox.yview(tk.END) if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE else None
 
             if len(self.current_musiclist) == 0:
                 self.current_musiclist = [filename for filename in self.filelist 
@@ -113,8 +114,7 @@ class MainPageController():
         self.current_musiclist.sort(key=lambda filename: os.path.getctime(os.path.join(self.config.downloads_path, filename)))
 
         for name in self.current_musiclist:
-            self.frame.listbox.insert(tk.END, name)
-            self.existing_musiclist.append(name)
+            self.insert_item_in_musiclist(name)
 
         self.frame.listbox.bind("<<ListboxSelect>>", self.handle_get_selection)
         self.frame.listbox.yview(tk.END) if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE else None
