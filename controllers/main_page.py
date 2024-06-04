@@ -81,7 +81,8 @@ class MainPageController():
                                     if filename not in self.existing_musiclist]
 
             if len(self.current_musiclist) > 0:
-                self.current_musiclist.append(song_name)
+                if song_name not in self.current_musiclist:
+                    self.current_musiclist.append(song_name)
                 return
             
 
@@ -245,6 +246,7 @@ class MainPageController():
             if os.path.splitext(filename)[1] 
             in constants.SUPPORTED_AUDIO_EXTENSIONS
         ]
+
     def fill_view(self, config):
 
         self.config = config 
