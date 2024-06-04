@@ -69,9 +69,10 @@ class MainPageController():
 
             encoded_song_name = song_name.encode("unicode_escape").decode("utf-8")
 
-            print("event type:", type(watchdog_event))
-            print(f"song name: {encoded_song_name}")
-            print(f"full event: {vars(watchdog_event)}")
+            #TODO: create debug logging
+            #print("event type:", type(watchdog_event))
+            #print(f"song name: {encoded_song_name}")
+            #print(f"full event: {vars(watchdog_event)}")
             
             self.insert_item_in_musiclist(song_name)
             self.frame.listbox.yview(tk.END) if self.CURRENT_LIST_MODE == ListMode.FULL_LIST_MODE else None
@@ -102,7 +103,6 @@ class MainPageController():
         self.filelist = os.listdir(self.config.downloads_path)
 
         try:
-
             if not self.observer:
                 self.observer = Observer()
                 event_handler = path_observer.Handler(self)
