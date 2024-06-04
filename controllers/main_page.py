@@ -164,7 +164,11 @@ class MainPageController():
             else constants.DISABLE_REFRESH_TXT
         )
 
-        self.update_file_list()
+        if self.REFRESH_MUSIC_LIST_ENABLED:
+            self.update_file_list()
+        else:
+            self.shutdown("not_an_event_(placeholder)")
+            self.observer = None
     
     def change_list_mode(self):
 
