@@ -1,4 +1,3 @@
-
 import time
 import watchdog.events
 from .constants import SUPPORTED_AUDIO_EXTENSIONS
