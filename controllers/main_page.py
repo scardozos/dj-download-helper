@@ -109,13 +109,7 @@ class MainPageController():
         except Exception as e:
             print(e)
 
-
-        # self.current_musiclist = [filename for filename in self.filelist 
-        #                        if os.path.splitext(filename)[1] in constants.SUPPORTED_AUDIO_EXTENSIONS
-        #                            if filename not in self.existing_musiclist]
-        # print(self.musiclist)
         self.current_musiclist.sort(key=lambda filename: os.path.getctime(os.path.join(self.config.downloads_path, filename)))
-
 
         for name in self.current_musiclist:
             self.frame.listbox.insert(tk.END, name)
@@ -131,7 +125,6 @@ class MainPageController():
 
 
     def handle_get_selection(self, event):
-        print("getting executed")
         selected_indices = self.frame.listbox.curselection()
         for index in selected_indices:
             self.SELECTED_FILE_PATH = os.path.join(self.config.downloads_path,self.frame.listbox.get(index)) 
