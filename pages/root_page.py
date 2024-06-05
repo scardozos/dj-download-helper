@@ -1,4 +1,5 @@
 import tkinter as tk
+from queue import Queue
 
 class Root(tk.Tk):
     def __init__(self):
@@ -6,6 +7,7 @@ class Root(tk.Tk):
 
         window_width = 1200
         window_height = 600
+        self.queue = Queue()
 
         self.title("DJ Music Download Helper")
         self.grid_rowconfigure(0, weight=1)  
