@@ -2,7 +2,8 @@ SUPPORTED_AUDIO_EXTENSIONS = [
     ".mp3",
     ".aiff",
     ".flac",
-    ".wav"
+    ".wav",
+    ".m4a"
 ]
 
 SHOW_NEW_DOWNLOADS_TXT = "Only show new downloads"

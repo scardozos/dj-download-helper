@@ -11,7 +11,10 @@
         "Tech House",
         "Techno",
         "Hard Techno",
-        "Psytrance"
+        "Psytrance",
+        "Mainstage",
+        "Electro House",
+        "Garage"
     ],
     "music_path": "D:/Music/Organized",
     "downloads_path": "C:/Users/Santi/Downloads",
@@ -31,6 +34,9 @@
         "Minimal",
         "House",
         "Psytrance",
+        "Mainstage",
+        "Electro House",
+        "Garage",
         "Hard Techno",
         "Techno",
         "Deep House",
