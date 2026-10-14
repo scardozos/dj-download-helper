@@ -36,12 +36,12 @@ class Controller:
 
         if (not self.model.config.cst_config_loaded and
             self.model.config.config == None):
-            self.model.error.trigger("Config invalid")
+            self.model.error.trigger(config.INVALID_CONFIG_MSG)
 
         self.view.start_mainloop()
 
     def config_saved_listener(self, new_config):
-        config.save_config_to_json_file(new_config.config, "config.json")
+        config.save_config_to_json_file(new_config.config, config.CONFIG_FILE_PATH)
         self.main_page_controller.fill_view(new_config.config)
 
     def error_state_listener(self, data):

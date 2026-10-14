@@ -8,6 +8,7 @@ class ErrorPageView(tk.Frame):
         self.grid(row=0,column=0, sticky=tk.NSEW, padx=10, pady=10)
 
         self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=0)
         self.columnconfigure(0, weight=1)
 
         self.err_msg_var = tk.StringVar()
@@ -25,3 +26,6 @@ class ErrorPageView(tk.Frame):
             pady=10,
             padx=10,
         )
+
+        self.back_btn = tk.Button(self, text="Back to config")
+        self.back_btn.grid(column=0, row=1, pady=10)

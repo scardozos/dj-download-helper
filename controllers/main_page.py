@@ -4,6 +4,7 @@ import shutil
 import tkinter as tk
 import time
 import queue
+import subprocess
 from datetime import datetime
 from watchdog.observers import Observer
 from common import path_observer
@@ -24,7 +25,7 @@ class MainPageController():
         self.frame.bind("<<WatchdogEvent>>", self.handle_watchdog_event)
 
         if self.model.config.config is None:
-            self.model.error.trigger("config is invalid")
+            self.model.error.trigger(config.INVALID_CONFIG_MSG)
             return
 
         self.config: config.Config = self.model.config.config
@@ -101,7 +102,11 @@ class MainPageController():
         print("calling update_file_list")
     
         
-        self.filelist = os.listdir(self.config.downloads_path)
+        self.filelist = (
+            os.listdir(self.config.downloads_path)
+            if os.path.isdir(self.config.downloads_path)
+            else []
+        )
 
         try:
             if not self.observer:
@@ -243,7 +248,26 @@ class MainPageController():
             print(f"Error moving file: {e}")
         pass
     
+    def handle_open_spek(self):
+        if not self.SELECTED_FILE_PATH:
+            self.frame.move_res_label_var.set("Select a file to open in Spek")
+            return
+
+        if not os.path.isfile(self.config.spek_path):
+            self.frame.move_res_label_var.set("Spek path not set or invalid, check config")
+            return
+
+        try:
+            subprocess.Popen([self.config.spek_path, self.SELECTED_FILE_PATH])
+        except OSError as e:
+            print(f"Error opening Spek: {e}")
+            self.frame.move_res_label_var.set(f"Could not open Spek: {e}")
+
     def get_musiclist_from_path(self, path):
+        if not os.path.isdir(path):
+            print(f"Downloads path '{path}' does not exist")
+            return []
+
         filelist = os.listdir(path)
         return [
             filename for 
@@ -314,6 +338,7 @@ class MainPageController():
 
         self.frame.res_path_label_var.set(self.generate_move_path())
         self.frame.move_btn.config(command=self.handle_copy_move)
+        self.frame.open_spek_btn.config(command=self.handle_open_spek)
 
         self._bind()
 

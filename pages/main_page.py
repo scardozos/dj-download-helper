@@ -87,6 +87,10 @@ class MainPageView(tk.Frame):
         self.copy_move_menu_btn["menu"] = self.copy_move_menu
         self.copy_move_menu_btn.grid(row=2, column=0)
 
+        # Open in spek button
+        self.open_spek_btn = tk.Button(self.right_side_frame, text="Open in Spek")
+        self.open_spek_btn.grid(row=2, column=1)
+
         # Result frame
         self.res_frame = tk.Frame(self.right_side_frame, background="green")
         self.res_frame.grid(row=3, column=0, sticky="nsew", columnspan=2)

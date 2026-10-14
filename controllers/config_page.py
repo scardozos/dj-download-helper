@@ -16,7 +16,7 @@ class ConfigPageController():
         self.error_model = self.model.error
 
         if self.config is None:
-            self.error_model.trigger("Config not valid!")
+            self.error_model.trigger(config.INVALID_CONFIG_MSG)
             return
 
         # -- Downloads dir --
@@ -51,6 +51,9 @@ class ConfigPageController():
         self.displayed_music_categories = self.config.displayed_music_categories
 
         self.frame.button_close.config(command=self.go_to_mainpage)
+        self.frame.button_close_without_saving.config(
+            command=self.go_to_mainpage_without_saving
+        )
 
         # -- Music Genres --
         self.fill_listbox_pair(
@@ -75,7 +78,9 @@ class ConfigPageController():
         self.frame.rm_category_btn.config(command=self.handle_remove_categories)
 
     def get_all_configs(self):
-        
+
+        self.error_model.clear()
+
         available_music_genres = self.get_listbox_config(
             self.frame.available_music_genres_listbox
         )
@@ -91,32 +96,42 @@ class ConfigPageController():
         )
 
         downloads_path = self.get_entry_config(
-            self.frame.downloads_dir_entry
+            self.frame.downloads_dir_entry,
+            "Downloads directory"
         )
         music_path = self.get_entry_config(
-            self.frame.music_dir_entry
+            self.frame.music_dir_entry,
+            "Music directory"
         )
         spek_path = self.get_entry_config(
-            self.frame.spek_dir_entry
+            self.frame.spek_dir_entry,
+            "Spek path",
+            optional=True
         )
 
 
         if self.error_model.err_happened == True:
             return
 
-        self.new_config = config.Config(
-            available_music_genres=available_music_genres,
-            available_music_categories=available_music_categories,
+        try:
+            self.new_config = config.Config(
+                available_music_genres=available_music_genres,
+                available_music_categories=available_music_categories,
 
-            music_path=music_path,
-            downloads_path=downloads_path,
-            spek_path=spek_path,
+                music_path=music_path,
+                downloads_path=downloads_path,
+                spek_path=spek_path,
 
-            displayed_music_categories=displayed_music_categories,
-            displayed_music_genres=displayed_music_genres,
+                displayed_music_categories=displayed_music_categories,
+                displayed_music_genres=displayed_music_genres,
 
-            default=self.config.default
-        )
+                default=self.config.default
+            )
+        except config.ValidationError as e:
+            self.error_model.trigger(
+                "\n".join(err["msg"] for err in e.errors())
+            )
+            return
 
         return self.new_config
 
@@ -132,15 +147,20 @@ class ConfigPageController():
 
     def explore_spek(self):
         self.explore(
-            self.frame.spek_dir_entry
+            self.frame.spek_dir_entry,
+            select_file=True
         )
 
-    def explore(self, entry: tk.Entry):
+    def explore(self, entry: tk.Entry, select_file=False):
 
-        dir = filedialog.askdirectory()
-        if dir:
+        path = (
+            filedialog.askopenfilename()
+            if select_file
+            else filedialog.askdirectory()
+        )
+        if path:
             entry.delete(0, tk.END)
-            entry.insert(0, dir)
+            entry.insert(0, path)
 
     def fill_listbox_pair(
             self, 
@@ -212,20 +232,25 @@ class ConfigPageController():
 
     def get_entry_config(
             self,
-            entry: tk.Entry
+            entry: tk.Entry,
+            name: str,
+            optional=False
     ) -> str:
         
-        value = entry.get()
+        value = entry.get().strip()
 
         if value == "":
+            if optional:
+                return value
+
             self.error_model.trigger(
-                "Entry must not be empty!"
+                f"{name} must not be empty!"
             ) 
             return
 
         if helpers.is_valid_path(value) == False:
             self.error_model.trigger(
-                "Entry is not a valid path!"
+                f"{name} is not a valid path:\n{value}"
             )
             return
 
@@ -312,3 +337,11 @@ class ConfigPageController():
         self.model.config.save_new(new_config)
         self.view.switch("mainpage")
         return 
+
+    def go_to_mainpage_without_saving(self):
+        if not config.has_valid_paths(self.model.config.config):
+            self.error_model.trigger(
+                "Set a valid downloads and music directory first!"
+            )
+            return
+        self.view.switch("mainpage")
