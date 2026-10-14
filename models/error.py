@@ -10,4 +10,8 @@ class Error(ObservableModel):
         self.err_happened = True
         self.err_msg = err_msg
         self.trigger_event("error_happened")
+
+    def clear(self):
+        self.err_happened = False
+        self.err_msg = ""
         

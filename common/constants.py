@@ -1,3 +1,6 @@
+import os
+import shutil
+
 SUPPORTED_AUDIO_EXTENSIONS = [
     ".mp3",
     ".aiff",
@@ -16,10 +19,24 @@ AVAILABLE_MUSIC_CATEGORIES_TXT = "Available Music Categories"
 DISPLAYED_MUSIC_CATEGORIES_TXT = "Displayed Music Categories"
 
 
-# TODO: reimplement this
-MUSIC_PATH = 'D:\\Music\\Organized'
-DOWNLOADS_PATH = 'C:\\Users\\Santi\\Downloads'
-SPEK_PATH = "C:\\Program Files\\Spek\\spek.exe"
+CONFIG_FILE_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "config.json"
+)
+
+# Defaults used to generate the config file on first run
+MUSIC_PATH = os.path.join(os.path.expanduser("~"), "Music")
+DOWNLOADS_PATH = os.path.join(os.path.expanduser("~"), "Downloads")
+SPEK_PATH = shutil.which("spek") or next(
+    (
+        path for path in [
+            "C:\\Program Files\\Spek\\spek.exe",
+            "C:\\Program Files (x86)\\Spek\\spek.exe",
+        ]
+        if os.path.exists(path)
+    ),
+    ""
+)
 
 DEFAULT_MUSIC_GENRES = [
     "Minimal",

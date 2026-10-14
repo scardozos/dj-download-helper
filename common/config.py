@@ -1,16 +1,22 @@
+import os
 import json 
 from typing import List
 from pydantic import BaseModel, field_validator, ValidationError, ValidationInfo
 from .enums import MoveMode, ListMode
-from .constants import MUSIC_PATH, DOWNLOADS_PATH
+from .constants import MUSIC_PATH, DOWNLOADS_PATH, CONFIG_FILE_PATH
 from .constants import SPEK_PATH, DEFAULT_MUSIC_CATEGORIES, DEFAULT_MUSIC_GENRES
+
+INVALID_CONFIG_MSG = (
+    f"Config file is invalid:\n{CONFIG_FILE_PATH}\n\n"
+    "Fix or delete it and restart the app"
+)
 
 class BaseConfig(BaseModel):
     available_music_categories: List[str]
     available_music_genres: List[str]
     music_path: str
     downloads_path: str
-    spek_path: str
+    spek_path: str = ""
 
     
 class DefaultConfig(BaseModel):
@@ -35,7 +41,7 @@ class Config(BaseConfig):
             not all(
                 displayed_genre
                 in
-                info.data["available_music_genres"] 
+                info.data.get("available_music_genres", [])
                 for displayed_genre in displayed_genres
             )
         ):
@@ -53,7 +59,7 @@ class Config(BaseConfig):
             not all(
                 displayed_category
                 in
-                info.data["available_music_categories"] 
+                info.data.get("available_music_categories", [])
                 for displayed_category in displayed_categories
             )
         ):
@@ -63,7 +69,7 @@ class Config(BaseConfig):
 def save_new_config(new_config) -> Config:
 
     try:
-       save_config_to_json_file(new_config, "config.json") 
+       save_config_to_json_file(new_config, CONFIG_FILE_PATH)
        return new_config
     except ValidationError as e:
         print(f"FATAL! CONFIG FILE INVALID:\n{e}")
@@ -71,7 +77,7 @@ def save_new_config(new_config) -> Config:
 
 def load_and_gen_if_not_exists() -> (Config, bool):
     try:
-        with open('config.json') as f:
+        with open(CONFIG_FILE_PATH) as f:
             config_json = json.load(f)
             print("Config file found! Deserializing")
             config = Config(**config_json)
@@ -100,13 +106,19 @@ def load_and_gen_if_not_exists() -> (Config, bool):
             )
         )
         
-        save_config_to_json_file(config, "config.json")
+        save_config_to_json_file(config, CONFIG_FILE_PATH)
 
         return config, False
 
-    except ValidationError as e:
+    except (ValidationError, json.JSONDecodeError) as e:
         print(f"FATAL! CONFIG FILE INVALID:\n{e}")
         return None, False
+
+def has_valid_paths(config: Config) -> bool:
+    return (
+        os.path.isdir(config.downloads_path)
+        and os.path.isdir(config.music_path)
+    )
 
 def save_config_to_json_file(config, config_file):
 
