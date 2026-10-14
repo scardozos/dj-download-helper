@@ -3,6 +3,7 @@ from common import config
 from .main_page import MainPageController
 from .config_page import ConfigPageController
 from .error_page import ErrorPageController
+from .player import PlayerController
 
 class Controller:
     def __init__(self, model, view):
@@ -12,6 +13,9 @@ class Controller:
         self.main_page_controller = MainPageController(self.model, self.view)
         self.config_page_controller = ConfigPageController(self.model, self.view)
         self.error_page_controller = ErrorPageController(self.model, self.view)
+
+        if self.model.config.config is not None:
+            self.player_controller = PlayerController(self.model, self.view)
 
         self.model.error.add_event_listener(
             "error_happened", self.error_state_listener
