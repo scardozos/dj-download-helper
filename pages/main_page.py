@@ -1,5 +1,6 @@
 import tkinter as tk
 from common.enums import MoveMode
+from .player_bar import PlayerBar
 
 class MainPageView(tk.Frame):
 
@@ -11,8 +12,9 @@ class MainPageView(tk.Frame):
         self.grid(row=0,column=0, sticky=tk.NSEW, padx=10, pady=10)
 
         # Configure grid size
-        self.grid_rowconfigure(0, weight=1)  
-        self.grid_columnconfigure(0, weight=4) 
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=0)
+        self.grid_columnconfigure(0, weight=4)
         self.grid_columnconfigure(1, weight=7)  
 
         # Show music listbox
@@ -106,3 +108,7 @@ class MainPageView(tk.Frame):
         self.move_btn.grid(row=0, column=1, padx=5, pady=5)
         self.res_path_label.grid(row=0, column=0, padx=5, pady=5)
         self.move_res_label.grid(row=1,column=0, padx=5, pady=5)
+
+        # --- Music player ---
+        self.player_bar = PlayerBar(self)
+        self.player_bar.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(5, 0))

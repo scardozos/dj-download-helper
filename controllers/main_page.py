@@ -236,6 +236,10 @@ class MainPageController():
                 self.frame.move_res_label_var.set(restext)
             
             if self.CURRENT_COPY_MOVE_MODE == MoveMode.MOVE.value:
+                # The player keeps the file open, which blocks moving it on Windows
+                if self.model.player.current_path == self.SELECTED_FILE_PATH:
+                    self.model.player.stop()
+
                 shutil.move(*from_and_to_paths)
                 restext = f"File '{self.SELECTED_FILE_NAME}' moved successfully"
                 print(f"File moved successfully from '{from_and_to_paths[0]}' to '{from_and_to_paths[1]}'")
